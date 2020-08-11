@@ -1,2 +1,4 @@
 # StayHomeBatter
-バッティングするアプリを作ろう
+BattingApp
+
+バッティングするアプリ．作ろう．
