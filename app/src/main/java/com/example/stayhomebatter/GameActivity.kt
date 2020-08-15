@@ -8,10 +8,9 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.AudioAttributes
 import android.media.SoundPool
-import android.os.Build
+import android.os.*
+import android.os.VibrationEffect.DEFAULT_AMPLITUDE
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import androidx.annotation.RequiresApi
 import kotlinx.android.synthetic.main.activity_game.*
@@ -85,6 +84,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     //  センサーの監視
     override fun onSensorChanged(event: SensorEvent?) {
         var swingTime: Long = 0L
+        //
+        val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         if (event == null) return
 
@@ -97,8 +98,20 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     or (600L < swingTime - time && swingTime - time <= 700L)
                 ) {
                     soundPool.play(smallHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        val vibrationEffect = VibrationEffect.createOneShot(100, DEFAULT_AMPLITUDE)
+                        vibrator.vibrate(vibrationEffect)
+                    } else {
+                        vibrator.vibrate(100)
+                    }
                 } else if (500L <= swingTime - time && swingTime - time <= 600L) {
                     soundPool.play(bigHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        val vibrationEffect = VibrationEffect.createOneShot(200, DEFAULT_AMPLITUDE)
+                        vibrator.vibrate(vibrationEffect)
+                    } else {
+                        vibrator.vibrate(200)
+                    }
                 } else {
                     soundPool.play(swingSound, 1.0f, 1.0f, 1, 0, 1.0f)
                 }
