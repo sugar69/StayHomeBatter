@@ -1,6 +1,7 @@
 package com.example.stayhomebatter
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -30,11 +31,24 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var time: Long = 0L
     var swingFlag = false
 
+    // スコア用変数
+    var highScore  = 0
+    var currentScore = 0
+
+    // 投球回数
+    var pitchingCount = 0
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContentView(R.layout.activity_game)
+
+        // スコアを初期化
+        currentScore = 0
+
+        // 投球回数を初期化
+        pitchingCount = 0
 
         //  SEを設定する枠の初期設定
         val audioAttributes = AudioAttributes.Builder() // USAGE_MEDIA
@@ -73,6 +87,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     //  ピッチング中の処理
     fun pitchingButtonTapped(view: View?) {
 //        Toast.makeText(applicationContext, "func", Toast.LENGTH_SHORT).show()
+        // 投球回数をインクリメント
+        pitchingCount++
         // 2秒後に投球音を流す
         Handler().postDelayed(Runnable {
             soundPool.play(pitchingSound, 1.0f, 1.0f, 1, 0, 1.0f)
@@ -98,6 +114,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     or (600L < swingTime - time && swingTime - time <= 700L)
                 ) {
                     soundPool.play(smallHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    currentScore += 1
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         val vibrationEffect = VibrationEffect.createOneShot(100, DEFAULT_AMPLITUDE)
                         vibrator.vibrate(vibrationEffect)
@@ -106,6 +123,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     }
                 } else if (500L <= swingTime - time && swingTime - time <= 600L) {
                     soundPool.play(bigHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    currentScore += 5
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         val vibrationEffect = VibrationEffect.createOneShot(200, DEFAULT_AMPLITUDE)
                         vibrator.vibrate(vibrationEffect)
@@ -114,6 +132,15 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     }
                 } else {
                     soundPool.play(swingSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                }
+                if (pitchingCount == 3){
+                    val intentResult = Intent(applicationContext, ResultActivity::class.java)
+                    if (currentScore > highScore){
+                        highScore = currentScore
+                    }
+                    intentResult.putExtra("SCORE", currentScore)
+                    intentResult.putExtra("HIGHSCORE", highScore)
+                    startActivity(intentResult)
                 }
                 // 2秒後にスイングのフラグを戻す
                 Handler().postDelayed(Runnable {
