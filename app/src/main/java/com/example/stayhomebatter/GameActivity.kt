@@ -34,8 +34,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     var swingFlag = false
 
     // スコア用変数
-    var highScore = 0
-    var currentScore = 0
+    private var highScore = 0
+    private var currentScore = 0
 
     // 投球回数
     var pitchingCount = 0
