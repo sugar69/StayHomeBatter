@@ -88,8 +88,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
         if (event == null) return
 
-        if ((event.sensor.type == Sensor.TYPE_ACCELEROMETER) && (swingFlag == false)) {
-            if((event.values[0] > 5.0 && event.values[1] > 6.0)/* || (-event.values[0] > 10.0 && event.values[1] > 6.0)*/){
+        if ((event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) && (swingFlag == false)) {
+            if((event.values[0] > 4.0 && -1.0 * event.values[1] > 6.0)/* || (-event.values[0] > 10.0 && event.values[1] > 6.0)*/){
                 swingFlag = true
 //                Toast.makeText(applicationContext, "$time", Toast.LENGTH_SHORT).show()
                 swingTime = System.currentTimeMillis()
@@ -102,13 +102,11 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 } else {
                     soundPool.play(swingSound, 1.0f, 1.0f, 1, 0, 1.0f)
                 }
+                // 2秒後にスイングのフラグを戻す
+                Handler().postDelayed(Runnable {
+                    swingFlag = false
+                }, 2000)
             }
-
-            // 2秒後にスイングのフラグを戻す
-            Handler().postDelayed(Runnable {
-                swingFlag = false
-            }, 2000)
-
         }
     }
 
@@ -140,7 +138,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
 
         //  センサーの監視の再開
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         sensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_GAME)
     }
 
