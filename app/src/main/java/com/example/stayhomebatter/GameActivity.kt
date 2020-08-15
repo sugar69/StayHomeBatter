@@ -2,6 +2,7 @@ package com.example.stayhomebatter
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -11,6 +12,7 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.*
 import android.os.VibrationEffect.DEFAULT_AMPLITUDE
+import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -32,7 +34,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     var swingFlag = false
 
     // スコア用変数
-    var highScore  = 0
+    var highScore = 0
     var currentScore = 0
 
     // 投球回数
@@ -133,11 +135,23 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 } else {
                     soundPool.play(swingSound, 1.0f, 1.0f, 1, 0, 1.0f)
                 }
+
+                // 1サイクルが終了→リザルト画面へ
                 if (pitchingCount == 3){
                     val intentResult = Intent(applicationContext, ResultActivity::class.java)
+                    // スコア保存用
+                    val scoreStore: SharedPreferences = getSharedPreferences("HIGH_SCORE", Context.MODE_PRIVATE)
                     if (currentScore > highScore){
                         highScore = currentScore
+                        // スコア保存用
+                        val editor = scoreStore.edit()
+                        editor.putInt("HIGH_SCORE", highScore).apply()
                     }
+
+                    // high score取り出し
+                    highScore = scoreStore.getInt("HIGH_SCORE", 0)
+
+                    // intentへscoreとhigh scoreの受け渡し
                     intentResult.putExtra("SCORE", currentScore)
                     intentResult.putExtra("HIGHSCORE", highScore)
                     startActivity(intentResult)
@@ -192,5 +206,4 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         sensorManager.unregisterListener(this)
     }
-
 }
