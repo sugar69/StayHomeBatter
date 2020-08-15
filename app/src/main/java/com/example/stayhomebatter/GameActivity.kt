@@ -84,7 +84,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     //  センサーの監視
     override fun onSensorChanged(event: SensorEvent?) {
         var swingTime: Long = 0L
-        //
+        //  バイブレーションの変数
         val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         if (event == null) return
