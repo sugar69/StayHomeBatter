@@ -89,14 +89,14 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     //  ピッチング中の処理
     fun pitchingButtonTapped(view: View?) {
 //        Toast.makeText(applicationContext, "func", Toast.LENGTH_SHORT).show()
-        // 投球回数をインクリメント
-        pitchingCount++
         // 2秒後に投球音を流す
         Handler().postDelayed(Runnable {
             soundPool.play(pitchingSound, 1.0f, 1.0f, 1, 0, 1.0f)
             //  投球の瞬間の時間を保存
             time = System.currentTimeMillis()
         }, 2000)
+        // 投球回数をインクリメント
+        pitchingCount++
     }
 
     //  センサーの監視
@@ -137,24 +137,25 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                 }
 
                 // 1サイクルが終了→リザルト画面へ
-                if (pitchingCount == 3){
-                    val intentResult = Intent(applicationContext, ResultActivity::class.java)
-                    // スコア保存用
-                    val scoreStore: SharedPreferences = getSharedPreferences("HIGH_SCORE", Context.MODE_PRIVATE)
-                    if (currentScore > highScore){
-                        highScore = currentScore
+                if (pitchingCount == 10){
+                    Handler().postDelayed({
+                        val intentResult = Intent(applicationContext, ResultActivity::class.java)
                         // スコア保存用
-                        val editor = scoreStore.edit()
-                        editor.putInt("HIGH_SCORE", highScore).apply()
-                    }
+                        val scoreStore: SharedPreferences = getSharedPreferences("HIGH_SCORE", Context.MODE_PRIVATE)
+                        // high score取り出し
+                        highScore = scoreStore.getInt("HIGH_SCORE", 0)
+                        if (currentScore > highScore){
+                            highScore = currentScore
+                            // スコア保存用
+                            val editor = scoreStore.edit()
+                            editor.putInt("HIGH_SCORE", highScore).apply()
+                        }
 
-                    // high score取り出し
-                    highScore = scoreStore.getInt("HIGH_SCORE", 0)
-
-                    // intentへscoreとhigh scoreの受け渡し
-                    intentResult.putExtra("SCORE", currentScore)
-                    intentResult.putExtra("HIGHSCORE", highScore)
-                    startActivity(intentResult)
+                        // intentへscoreとhigh scoreの受け渡し
+                        intentResult.putExtra("SCORE", currentScore)
+                        intentResult.putExtra("HIGHSCORE", highScore)
+                        startActivity(intentResult)
+                    }, 500)
                 }
                 // 2秒後にスイングのフラグを戻す
                 Handler().postDelayed(Runnable {
