@@ -34,6 +34,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)
         }
+
+        //  遊び方の画面に遷移
+        howtoButton.setOnClickListener{
+            val intent = Intent(this, HowtouseActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 }
