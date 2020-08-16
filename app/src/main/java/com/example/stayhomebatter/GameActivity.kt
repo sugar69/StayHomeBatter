@@ -1,6 +1,8 @@
 package com.example.stayhomebatter
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -10,6 +12,7 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.*
 import android.os.VibrationEffect.DEFAULT_AMPLITUDE
+import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -30,11 +33,24 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var time: Long = 0L
     var swingFlag = false
 
+    // スコア用変数
+    private var highScore = 0
+    private var currentScore = 0
+
+    // 投球回数
+    var pitchingCount = 0
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContentView(R.layout.activity_game)
+
+        // スコアを初期化
+        currentScore = 0
+
+        // 投球回数を初期化
+        pitchingCount = 0
 
         //  SEを設定する枠の初期設定
         val audioAttributes = AudioAttributes.Builder() // USAGE_MEDIA
@@ -79,6 +95,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             //  投球の瞬間の時間を保存
             time = System.currentTimeMillis()
         }, 2000)
+        // 投球回数をインクリメント
+        pitchingCount++
     }
 
     //  センサーの監視
@@ -98,6 +116,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     or (600L < swingTime - time && swingTime - time <= 700L)
                 ) {
                     soundPool.play(smallHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    currentScore += 1
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         val vibrationEffect = VibrationEffect.createOneShot(100, DEFAULT_AMPLITUDE)
                         vibrator.vibrate(vibrationEffect)
@@ -106,6 +125,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     }
                 } else if (500L <= swingTime - time && swingTime - time <= 600L) {
                     soundPool.play(bigHitSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                    currentScore += 5
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         val vibrationEffect = VibrationEffect.createOneShot(200, DEFAULT_AMPLITUDE)
                         vibrator.vibrate(vibrationEffect)
@@ -114,6 +134,28 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
                     }
                 } else {
                     soundPool.play(swingSound, 1.0f, 1.0f, 1, 0, 1.0f)
+                }
+
+                // 1サイクルが終了→リザルト画面へ
+                if (pitchingCount == 10){
+                    Handler().postDelayed({
+                        val intentResult = Intent(applicationContext, ResultActivity::class.java)
+                        // スコア保存用
+                        val scoreStore: SharedPreferences = getSharedPreferences("HIGH_SCORE", Context.MODE_PRIVATE)
+                        // high score取り出し
+                        highScore = scoreStore.getInt("HIGH_SCORE", 0)
+                        if (currentScore > highScore){
+                            highScore = currentScore
+                            // スコア保存用
+                            val editor = scoreStore.edit()
+                            editor.putInt("HIGH_SCORE", highScore).apply()
+                        }
+
+                        // intentへscoreとhigh scoreの受け渡し
+                        intentResult.putExtra("SCORE", currentScore)
+                        intentResult.putExtra("HIGHSCORE", highScore)
+                        startActivity(intentResult)
+                    }, 500)
                 }
                 // 2秒後にスイングのフラグを戻す
                 Handler().postDelayed(Runnable {
@@ -165,5 +207,4 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         sensorManager.unregisterListener(this)
     }
-
 }
