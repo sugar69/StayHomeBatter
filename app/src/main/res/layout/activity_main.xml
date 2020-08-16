@@ -32,14 +32,14 @@
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="437dp"
-        android:layout_height="334dp"
+        android:layout_width="473dp"
+        android:layout_height="322dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/homeBackground"
         app:layout_constraintTop_toTopOf="@+id/homeBackground"
-        app:layout_constraintVertical_bias="0.328"
-        app:srcCompat="@drawable/app_title" />
+        app:layout_constraintVertical_bias="0.125"
+        app:srcCompat="@drawable/sports_baseball_bat" />
 
     <Button
         android:id="@+id/howtoButton"
