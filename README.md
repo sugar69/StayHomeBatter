@@ -1,4 +1,4 @@
 # StayHomeBatter
 BattingApp
 
-バッティングするアプリ．作ろう．
+そうだ，バッティングするアプリ．作ろう．
